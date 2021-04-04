@@ -1,0 +1,65 @@
+			   Copyright @ 2021 Grecu Andrei-George 335CA, All rights reserved
+			   
+Multi-platform Development of Preprocessor
+
+TEXT : https://ocw.cs.pub.ro/courses/so/teme/tema-1
+
+Structure:
+	so-cpp.c --- main --- preprocess --- helper --- check_include
+		                                        \__ check_define --- multiline_define
+                                                                \__ normal_define
+                                                                \__ special_lines
+
+    hashmap.c
+    hashmap.h
+
+    Tema implementeaza un subset al directivelor de preprocesare specifice limbajului C:
+    #define, #include, #if, #elseif (sub forma #elif), #else, #endif, #undef
+
+    main:
+        Functia care initializeaza variabilele necesare functionarii programului
+        (flaguri, hashMap, infile/outfile), primeste argumente si le proceseaza in functie
+        de parametrii primiti.
+
+        Dupa procesarea argumentelor, apeleaza functia preprocess pentru procesarea datelor.
+
+        Daca fisierul de intrare/de iesire nu este specificat, aceasta va asigna stdin/stdout.
+
+    preprocess:
+        Functia deschide fisierul de input si incepe preprocesarea pe el.
+
+        Citind linie cu linie, se verifica buff daca se incadreaza in una din comenzile #if,
+        #elif, #else sau nu (se poate observa diferenta flagurilor(modificati in functie daca
+        directivele au fost sau nu validate in functia check_include())) si se apeleaza functia
+        helper pentru fiecare caz in parte.
+
+    helper:
+        Aceasta functia ajutatoare apeleaza pentru linia in curs de procesare functiile
+        check_include si check_define care verifica linia pentru cuvintele cheie.
+
+    check_include:
+        Functia imparte linia primita ca parametru in tokenuri si verifica daca exista vreun
+        fisier de inclus in program. Daca exista acest fiser(cautandu-se si in toate
+        subdirectoarele date ca argument (cd)) se apeleaza recursiv pe acest fisier functia de
+        preprocess pentru procesarea fisierului inainte de a face append la text in output.
+
+    check_define:
+        Functia practic proceseaza toate liniile ce au define-uri si directive if/elif/else
+        si nu sunt procesate de functia check_include.
+
+        Aceasta verifica:
+        daca linia este un define multiline C-style si apeleaza functia multiline_define(),
+        daca linia este un simplu define si apeleaza functia normal_define() pentru prelucrare, 
+        daca linia este un #undef se scoate define-ul din hashMap,
+        daca este o simpla linie(nici define/nici include) atunci se verifica daca:
+            este o directiva speciala(#if/elif/else/endif) se apeleaza special_lines()
+            este o linie normala se printeaza normal (cu mentiunea ca acolo unde ar trb sa
+                se inlocuiasca un define functia print_defines() o va face)
+
+    special_lines:
+        Functia verifica directivele if/elif si in functie daca se valideaza/invalideaza
+        se vor seta flagurile corespunzatoare
+
+    hashmap.c
+        Este o implementare clasica de hashmap, care foloseste o functie simpla de hashing,
+        pentru inputurile noastre, mici ca numar, care este suficienta.
